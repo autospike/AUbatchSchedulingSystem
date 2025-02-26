@@ -2,6 +2,6 @@
 #include <ctype.h>
 #include "cmd_parser.h"
 
-int main(void) {
-    cmd_parser();
+void cmd_parser() {
+    printf("in cmd_parser");
 }
