@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "cmd_parser.h"
+#include "scheduling.h"
 
 void cmd_parser() {
     char *line = NULL;
@@ -54,7 +55,8 @@ static void process_command(char *line) {
     }
     else if (strcmp(command, "quit") == 0) {
         printf("quit\n");
-        exit(0); 
+        stop_scheduler();
+        exit(0);
     }
     else {
         printf("Unknown command\n"); 

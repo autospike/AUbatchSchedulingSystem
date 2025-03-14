@@ -2,7 +2,7 @@ CC = gcc
 
 CFLAGS = -Wall -g
 
-SRCS = main.c cmd_parser.c
+SRCS = main.c cmd_parser.c scheduling.c
 
 OBJS = $(SRCS:.c=.o)
 
