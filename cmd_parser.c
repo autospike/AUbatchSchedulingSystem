@@ -20,7 +20,7 @@ void cmd_parser() {
             process_command(line);
         }
     }
-    
+    free(line);
 }
 
 static void process_command(char *line) {
@@ -34,24 +34,38 @@ static void process_command(char *line) {
 
     if (strcmp(command, "help") == 0) {
         help_menu();
+        return;
     }
     else if (strcmp(command, "run") == 0) {
         printf("run\n");
+        char job_name[64];
+        int cpu_time;
+        int priority;
+        if (sscanf(line, "run %63s %d %d", job_name, &cpu_time, &priority) != 3) {
+            printf("Usage: run <job> <time> <priority>\n");
+            return;
+        }
+        submit_job(job_name, cpu_time, priority);
+        return;
     }
     else if (strcmp(command, "list") == 0) {
-        printf("list\n");  
+        printf("list\n");
+        return;
     }
     else if (strcmp(command, "fcfs") == 0) {
-        printf("fcfs\n"); 
+        printf("fcfs\n");
+        return;
     }
     else if (strcmp(command, "sjf") == 0) {
         printf("sjf\n"); 
     }
     else if (strcmp(command, "priority") == 0) {
-        printf("priority\n"); 
+        printf("priority\n");
+        return; 
     }
     else if (strcmp(command, "test") == 0) {
-        printf("test\n"); 
+        printf("test\n");
+        return;
     }
     else if (strcmp(command, "quit") == 0) {
         printf("quit\n");
