@@ -9,8 +9,8 @@
 #include "scheduling.h"
 #include "job.h"
 
-//Add execution, testing, ending print statement, fix print mistakes
-
+//Add testing, ending print statement, fix print mistakes
+//pri is highest number
 static pthread_t scheduling_thread;
 static pthread_t dispatching_thread;
 
@@ -110,6 +110,46 @@ static void *scheduling_thread_func(void *arg) {
 
 //Execute jobs in shared queue
 static void *dispatching_thread_func(void *arg) {
+    while (1) {
+        job_t *job = get_next_job();
+        if (job == NULL) {
+            sleep(1);
+            continue;
+        }
+        job->start_time = time(NULL);
+        job->status = JOB_RUNNING;
+        printf("Dispatching job: %s\n", job->name);
+
+        pid_t pid = fork();
+        if (pid < 0) {
+            perror("fork failed");
+            free(job);
+            continue;
+        }
+        else if (pid == 0) {
+            char cpu_time_str[16];
+            char priority_str[16];
+            snprintf(cpu_time_str, sizeof(cpu_time_str), "%d", job->cpu_time);
+            snprintf(priority_str, sizeof(priority_str), "%d", job->priority);
+            char *args[4];
+            args[0] = job->name;
+            args[1] = cpu_time_str;
+            args[2] = priority_str;
+            args[3] = NULL;
+
+            execv(job->name, args);
+            perror("execv failed");
+            exit(EXIT_FAILURE);
+        }
+        else {
+            int status;
+            waitpid(pid, &status, 0);
+            job->finish_time = time(NULL);
+            job->status = JOB_FINISHED;
+            //record_job_evaluations(job);
+            free(job);
+        }
+    }
     return NULL;
 }
 

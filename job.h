@@ -29,6 +29,7 @@ typedef enum {
 
 void add_job(job_t *job);
 void list_jobs(void);
+job_t* get_next_job(void);
 void change_policy(scheduling_policy_t new_policy);
 void sort_jobs(void);
 static int cmp_fcfs(const void *a, const void *b);

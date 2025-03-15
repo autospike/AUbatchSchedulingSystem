@@ -12,11 +12,14 @@ int job_count = 0;
 static pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void add_job(job_t *job) {
+
     pthread_mutex_lock(&job_queue_mutex);
-    
+
     if (job_count >= MAX_JOBS) {
         perror("Job queue is full\n");
         free(job);
+        pthread_mutex_unlock(&job_queue_mutex);
+        return;
     }
     job->arrival_time = time(NULL);
     job->status = JOB_WAITING;
@@ -60,6 +63,21 @@ void list_jobs(void) {
         printf("%-15s %10d %5d %15s %10s\n", job_queue[i]->name, job_queue[i]->cpu_time, job_queue[i]->priority, time_str, progress);
     }
     pthread_mutex_unlock(&job_queue_mutex);
+}
+
+job_t* get_next_job(void) {
+    pthread_mutex_lock(&job_queue_mutex);
+    if (job_count == 0) {
+        pthread_mutex_unlock(&job_queue_mutex);
+        return(NULL);
+    }
+    job_t *job = job_queue[0];
+    for (int i = 1; i < job_count; i++) {
+        job_queue[i - 1] = job_queue[i];
+    }
+    job_count--;
+    pthread_mutex_unlock(&job_queue_mutex);
+    return job;
 }
 
 void change_policy(scheduling_policy_t new_policy) {
