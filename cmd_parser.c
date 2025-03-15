@@ -4,6 +4,7 @@
 #include <string.h>
 #include "cmd_parser.h"
 #include "scheduling.h"
+#include "job.h"
 
 void cmd_parser() {
     char *line = NULL;
@@ -37,7 +38,6 @@ static void process_command(char *line) {
         return;
     }
     else if (strcmp(command, "run") == 0) {
-        printf("run\n");
         char job_name[64];
         int cpu_time;
         int priority;
@@ -49,18 +49,19 @@ static void process_command(char *line) {
         return;
     }
     else if (strcmp(command, "list") == 0) {
-        printf("list\n");
+        list_jobs();
         return;
     }
     else if (strcmp(command, "fcfs") == 0) {
-        printf("fcfs\n");
+        set_pending_policy_change(POLICY_FCFS);
         return;
     }
     else if (strcmp(command, "sjf") == 0) {
-        printf("sjf\n"); 
+        set_pending_policy_change(POLICY_SJF);
+        return;
     }
     else if (strcmp(command, "priority") == 0) {
-        printf("priority\n");
+        set_pending_policy_change(POLICY_PRIORITY);
         return; 
     }
     else if (strcmp(command, "test") == 0) {
@@ -68,7 +69,6 @@ static void process_command(char *line) {
         return;
     }
     else if (strcmp(command, "quit") == 0) {
-        printf("quit\n");
         stop_scheduler();
         exit(0);
     }
