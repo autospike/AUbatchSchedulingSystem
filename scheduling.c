@@ -9,8 +9,8 @@
 #include "scheduling.h"
 #include "job.h"
 
-//Add testing, ending print statement, fix print mistakes
-//pri is highest number
+//Add testing, wait time and queue count need to include current job stats, ending print statement, fix print mistakes
+
 static pthread_t scheduling_thread;
 static pthread_t dispatching_thread;
 
@@ -68,7 +68,6 @@ static void add_job_to_shared_queue(void) {
             for (int i = 0; i < submission_count; i++) {
                 job_t *job = submission_queue[i];
                 add_job(job);
-                printf("Job %s added to main queue\n", job->name);
             }
             submission_count = 0;
             pthread_mutex_unlock(&submission_mutex);
@@ -116,13 +115,24 @@ static void *dispatching_thread_func(void *arg) {
             sleep(1);
             continue;
         }
+        //
+        pthread_mutex_lock(&job_queue_mutex);
+        current_job = job;
+        //
         job->start_time = time(NULL);
         job->status = JOB_RUNNING;
-        printf("Dispatching job: %s\n", job->name);
+        //
+        pthread_mutex_unlock(&job_queue_mutex);
+        //
 
         pid_t pid = fork();
         if (pid < 0) {
             perror("fork failed");
+            //
+            pthread_mutex_lock(&job_queue_mutex);
+            current_job = NULL;
+            pthread_mutex_unlock(&job_queue_mutex);
+            //
             free(job);
             continue;
         }
@@ -144,11 +154,19 @@ static void *dispatching_thread_func(void *arg) {
         else {
             int status;
             waitpid(pid, &status, 0);
+            //
+            pthread_mutex_lock(&job_queue_mutex);
+            //
             job->finish_time = time(NULL);
             job->status = JOB_FINISHED;
+            //
+            current_job = NULL;
+            pthread_mutex_unlock(&job_queue_mutex);
+            //
             //record_job_evaluations(job);
             free(job);
         }
+        sleep(1);
     }
     return NULL;
 }

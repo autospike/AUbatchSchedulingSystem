@@ -35,5 +35,12 @@ void sort_jobs(void);
 static int cmp_fcfs(const void *a, const void *b);
 static int cmp_sjf(const void *a, const void *b);
 static int cmp_priority(const void *a, const void *b);
+int get_job_count(void);
+int expected_waiting_time(void);
+scheduling_policy_t get_current_policy(void);
+//
+extern job_t *current_job;
+extern pthread_mutex_t job_queue_mutex;
+//
 
 #endif

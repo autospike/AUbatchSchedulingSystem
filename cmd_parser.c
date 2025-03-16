@@ -46,6 +46,25 @@ static void process_command(char *line) {
             return;
         }
         submit_job(job_name, cpu_time, priority);
+        printf("Job %s was submitted.\n", job_name);
+        printf("Total number of jobs in the queue: %d\n", get_job_count());
+        printf("expected waiting time: %d seconds\n", expected_waiting_time());
+        printf("Scheduling Policy: ");
+        scheduling_policy_t cp = get_current_policy();
+        switch(cp) {
+            case POLICY_FCFS:
+                    printf("FCFS.\n");
+                    break;
+                case POLICY_SJF:
+                    printf("SJF.\n");
+                    break;
+                case POLICY_PRIORITY:
+                    printf("Priority.\n");
+                    break;
+                default:
+                    printf("FCFS.\n");
+                    break;
+        }
         return;
     }
     else if (strcmp(command, "list") == 0) {

@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
     }
 
     int cpu_time = atoi(argv[1]);
-    printf("Process starting, intended CPU time: %d seconds\n", cpu_time);
 
     clock_t start = clock();
     while (((double)(clock() - start) / CLOCKS_PER_SEC) < cpu_time) {
@@ -18,6 +17,5 @@ int main(int argc, char *argv[]) {
             dummy += i * i;
         }
     }
-    printf("Process finished\n");
     return 0;
 }

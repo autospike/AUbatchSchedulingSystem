@@ -4,15 +4,16 @@
 #include "job.h"
 
 #define MAX_JOBS 100
-
-static job_t *job_queue[MAX_JOBS];
+//
+job_t *job_queue[MAX_JOBS];
 static scheduling_policy_t current_policy = POLICY_FCFS;
 int job_count = 0;
-
-static pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+//
+pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+//
+job_t *current_job = NULL;
 
 void add_job(job_t *job) {
-
     pthread_mutex_lock(&job_queue_mutex);
 
     if (job_count >= MAX_JOBS) {
@@ -50,14 +51,28 @@ void list_jobs(void) {
     }
 
     printf("%-15s %10s %5s %15s %10s\n","Name", "CPU_Time", "Pri", "Arrival_time", "Progress");
+    //
+    if (current_job != NULL) {
+        char time_str[9];
+        struct tm *tm_info = localtime(&current_job->arrival_time);
+        strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
+        printf("%-15s %10d %5d %15s %10s\n", current_job->name, current_job->cpu_time, current_job->priority, time_str, "Running");
+    }
+    //
     for (int i = 0; i < job_count; i++) {
         char time_str[9];
         struct tm *tm_info = localtime(&job_queue[i]->arrival_time);
         strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
-
+        
         char progress[10] = "";
+        /*
         if (job_queue[i]->status == JOB_RUNNING) {
-            snprintf(progress, sizeof(progress), "Run");
+            snprintf(progress, sizeof(progress), "Running");
+        }
+        */
+        //maybe remove
+        if (job_queue[i]->status == JOB_WAITING) {
+            snprintf(progress, sizeof(progress), "Waiting");
         }
 
         printf("%-15s %10d %5d %15s %10s\n", job_queue[i]->name, job_queue[i]->cpu_time, job_queue[i]->priority, time_str, progress);
@@ -121,5 +136,33 @@ static int cmp_priority(const void *a, const void *b) {
     job_t *jobB = *(job_t **)b;
     if (jobA->priority == jobB->priority)
         return cmp_fcfs(a, b);
-    return jobA->priority - jobB->priority;
+    return jobB->priority - jobA->priority;
+}
+
+int get_job_count(void) {
+    int count;
+    pthread_mutex_lock(&job_queue_mutex);
+    count = job_count;
+    pthread_mutex_unlock(&job_queue_mutex);
+    return count;
+}
+
+int expected_waiting_time(void) {
+    int total = 0;
+    pthread_mutex_lock(&job_queue_mutex);
+    for (int i = 0; i < job_count; i++) {
+        if (job_queue[i]->status == JOB_WAITING) {
+            total += job_queue[i]->cpu_time;
+        }
+    }
+    pthread_mutex_unlock(&job_queue_mutex);
+    return total;
+}
+
+scheduling_policy_t get_current_policy(void) {
+    scheduling_policy_t cp;
+    pthread_mutex_lock(&job_queue_mutex);
+    cp = current_policy;
+    pthread_mutex_unlock(&job_queue_mutex);
+    return cp;
 }
