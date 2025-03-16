@@ -3,6 +3,13 @@
 
 #include "job.h"
 
+#define SUBMISSION_QUEUE_SIZE 50
+
+extern job_t *submission_queue[SUBMISSION_QUEUE_SIZE];
+extern int submission_count;
+extern pthread_mutex_t submission_mutex;
+extern pthread_cond_t submission_cv;
+
 void scheduling(void);
 void submit_job(const char *job_name, int cpu_time, int priority);
 static void add_job_to_shared_queue(void);

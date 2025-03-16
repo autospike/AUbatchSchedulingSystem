@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "job.h"
+#include "scheduling.h"
 
 #define MAX_JOBS 100
 //
@@ -12,6 +13,13 @@ int job_count = 0;
 pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 //
 job_t *current_job = NULL;
+
+static int total_jobs = 0;
+static double total_turnaround = 0.0;
+static double total_cpu = 0.0;
+static double total_waiting = 0.0;
+static time_t first_job_submission = 0;
+static time_t last_job_finish = 0;
 
 void add_job(job_t *job) {
     pthread_mutex_lock(&job_queue_mutex);
@@ -31,9 +39,9 @@ void add_job(job_t *job) {
 }
 
 void list_jobs(void) {
+    int count = get_job_count();
     pthread_mutex_lock(&job_queue_mutex);
-    
-    printf("Total number of jobs in queue: %d\n", job_count);
+    printf("Total number of jobs in queue: %d\n", count);
     printf("Scheduling Policy: ");
     switch(current_policy) {
         case POLICY_FCFS:
@@ -51,26 +59,27 @@ void list_jobs(void) {
     }
 
     printf("%-15s %10s %5s %15s %10s\n","Name", "CPU_Time", "Pri", "Arrival_time", "Progress");
-    //
+
     if (current_job != NULL) {
         char time_str[9];
         struct tm *tm_info = localtime(&current_job->arrival_time);
         strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
-        printf("%-15s %10d %5d %15s %10s\n", current_job->name, current_job->cpu_time, current_job->priority, time_str, "Running");
+        
+        int elapsed = (int)(time(NULL) - current_job->start_time);
+        int remaining = current_job->cpu_time - elapsed;
+        if (remaining < 0) {
+            remaining = 0;
+        }
+
+        printf("%-15s %10d %5d %15s %10s\n", current_job->name, remaining, current_job->priority, time_str, "Running");
     }
-    //
+
     for (int i = 0; i < job_count; i++) {
         char time_str[9];
         struct tm *tm_info = localtime(&job_queue[i]->arrival_time);
         strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
         
         char progress[10] = "";
-        /*
-        if (job_queue[i]->status == JOB_RUNNING) {
-            snprintf(progress, sizeof(progress), "Running");
-        }
-        */
-        //maybe remove
         if (job_queue[i]->status == JOB_WAITING) {
             snprintf(progress, sizeof(progress), "Waiting");
         }
@@ -143,19 +152,46 @@ int get_job_count(void) {
     int count;
     pthread_mutex_lock(&job_queue_mutex);
     count = job_count;
+
+    if (current_job != NULL) {
+        count++;
+    }
+
     pthread_mutex_unlock(&job_queue_mutex);
+    
+    pthread_mutex_lock(&submission_mutex);
+    count += submission_count;
+    pthread_mutex_unlock(&submission_mutex);
     return count;
 }
 
 int expected_waiting_time(void) {
     int total = 0;
+    time_t now = time(NULL);
+
     pthread_mutex_lock(&job_queue_mutex);
     for (int i = 0; i < job_count; i++) {
         if (job_queue[i]->status == JOB_WAITING) {
             total += job_queue[i]->cpu_time;
         }
     }
+    
+    if (current_job != NULL && current_job->status == JOB_RUNNING) {
+        int elapsed = (int)(now - current_job->start_time);
+        int remaining = current_job->cpu_time - elapsed;
+        if (remaining < 0) {
+            remaining = 0;
+        }
+        total += remaining;
+    }
+    
     pthread_mutex_unlock(&job_queue_mutex);
+
+    pthread_mutex_lock(&submission_mutex);
+    for (int i = 0; i < submission_count; i++) {
+        total += submission_queue[i]->cpu_time;
+    }
+    pthread_mutex_unlock(&submission_mutex);
     return total;
 }
 
@@ -165,4 +201,33 @@ scheduling_policy_t get_current_policy(void) {
     cp = current_policy;
     pthread_mutex_unlock(&job_queue_mutex);
     return cp;
+}
+
+void record_job_evaluation(job_t *job) {
+    if (total_jobs == 0) {
+        first_job_submission = job->arrival_time;
+    }
+    total_jobs++;
+    double turnaround = difftime(job->finish_time, job->arrival_time);
+    double waiting = difftime(job->start_time, job->arrival_time);
+    total_turnaround += turnaround;
+    total_cpu += job->cpu_time;
+    total_waiting += waiting;
+    last_job_finish = job->finish_time;
+}
+
+void print_performance_metrics() {
+    if (total_jobs == 0) {
+        printf("No jobs submitted\n");
+        return;
+    }
+
+    double elapsed = difftime(last_job_finish, first_job_submission);
+    double throughput = (elapsed > 0) ? ((double)total_jobs / elapsed) : 0;
+
+    printf("Total number of jobs submitted: %d\n", total_jobs);
+    printf("Average turnaround time: %.2f seconds\n",  total_turnaround / total_jobs);
+    printf("Average CPU time: %.2f seconds\n", total_cpu / total_jobs);
+    printf("Average waiting time: %.2f seconds\n", total_waiting / total_jobs);
+    printf("Throughput: %.2f No./second\n", throughput);
 }

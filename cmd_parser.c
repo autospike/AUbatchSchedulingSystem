@@ -89,6 +89,7 @@ static void process_command(char *line) {
     }
     else if (strcmp(command, "quit") == 0) {
         stop_scheduler();
+        print_performance_metrics();
         exit(0);
     }
     else {
