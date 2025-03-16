@@ -9,17 +9,19 @@
 #include "scheduling.h"
 #include "job.h"
 
-//Add testing, wait time and queue count need to include current job stats, ending print statement, fix print mistakes
+//add testing
+//fix ">" print formatting
+//input checks (process name, job params)
 
 static pthread_t scheduling_thread;
 static pthread_t dispatching_thread;
 
 //Varaibles for intermediate job queue
 #define SUBMISSION_QUEUE_SIZE 50
-static job_t *submission_queue[SUBMISSION_QUEUE_SIZE];
-static int submission_count = 0;
-static pthread_mutex_t submission_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t submission_cv = PTHREAD_COND_INITIALIZER;
+job_t *submission_queue[SUBMISSION_QUEUE_SIZE];
+int submission_count = 0;
+pthread_mutex_t submission_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t submission_cv = PTHREAD_COND_INITIALIZER;
 
 //Variables for policy changes
 static pthread_mutex_t policy_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -78,7 +80,6 @@ static void add_job_to_shared_queue(void) {
 static void *scheduling_thread_func(void *arg) {
     while(1) {
         add_job_to_shared_queue();
-        //maybe return bool so that reorder does not happen twice
         pthread_mutex_lock(&policy_mutex);
         if (pending_policy_change) {
             change_policy(pending_policy);
@@ -97,11 +98,13 @@ static void *scheduling_thread_func(void *arg) {
                     printf("FCFS.\n");
                     break;
             }
-            printf("All the %d waiting jobs have been rescheduled\n", 4);
+            //use real number
+            if (get_job_count() > 1) {
+                printf("All the %d waiting jobs have been rescheduled\n", get_job_count() -1);
+            }
             pending_policy_change = 0;
         }
         pthread_mutex_unlock(&policy_mutex);
-        //sort_jobs();
         sleep(1);
     }
     return NULL;
@@ -163,7 +166,7 @@ static void *dispatching_thread_func(void *arg) {
             current_job = NULL;
             pthread_mutex_unlock(&job_queue_mutex);
             //
-            //record_job_evaluations(job);
+            record_job_evaluation(job);
             free(job);
         }
         sleep(1);
