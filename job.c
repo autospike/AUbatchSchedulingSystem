@@ -14,13 +14,6 @@ pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 //
 job_t *current_job = NULL;
 
-static int total_jobs = 0;
-static double total_turnaround = 0.0;
-static double total_cpu = 0.0;
-static double total_waiting = 0.0;
-static time_t first_job_submission = 0;
-static time_t last_job_finish = 0;
-
 void add_job(job_t *job) {
     pthread_mutex_lock(&job_queue_mutex);
 
@@ -201,33 +194,4 @@ scheduling_policy_t get_current_policy(void) {
     cp = current_policy;
     pthread_mutex_unlock(&job_queue_mutex);
     return cp;
-}
-
-void record_job_evaluation(job_t *job) {
-    if (total_jobs == 0) {
-        first_job_submission = job->arrival_time;
-    }
-    total_jobs++;
-    double turnaround = difftime(job->finish_time, job->arrival_time);
-    double waiting = difftime(job->start_time, job->arrival_time);
-    total_turnaround += turnaround;
-    total_cpu += job->cpu_time;
-    total_waiting += waiting;
-    last_job_finish = job->finish_time;
-}
-
-void print_performance_metrics() {
-    if (total_jobs == 0) {
-        printf("No jobs submitted\n");
-        return;
-    }
-
-    double elapsed = difftime(last_job_finish, first_job_submission);
-    double throughput = (elapsed > 0) ? ((double)total_jobs / elapsed) : 0;
-
-    printf("Total number of jobs submitted: %d\n", total_jobs);
-    printf("Average turnaround time: %.2f seconds\n",  total_turnaround / total_jobs);
-    printf("Average CPU time: %.2f seconds\n", total_cpu / total_jobs);
-    printf("Average waiting time: %.2f seconds\n", total_waiting / total_jobs);
-    printf("Throughput: %.2f No./second\n", throughput);
 }

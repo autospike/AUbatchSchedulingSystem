@@ -38,8 +38,6 @@ static int cmp_priority(const void *a, const void *b);
 int get_job_count(void);
 int expected_waiting_time(void);
 scheduling_policy_t get_current_policy(void);
-void record_job_evaluation(job_t *job);
-void print_performance_metrics();
 //
 extern job_t *current_job;
 extern pthread_mutex_t job_queue_mutex;

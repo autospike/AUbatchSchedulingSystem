@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "aubatch.h": "c",
+        "cmd_parser.h": "c",
+        "pthread.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "job.h": "c"
+    }
+}
