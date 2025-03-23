@@ -11,7 +11,7 @@ extern pthread_mutex_t submission_mutex;
 extern pthread_cond_t submission_cv;
 
 void scheduling(void);
-void submit_job(const char *job_name, int cpu_time, int priority);
+void submit_job(const char *job_name, int cpu_time, int priority, int is_benchmark);
 static void add_job_to_shared_queue(void);
 static void *scheduling_thread_func(void *arg);
 static void *dispatching_thread_func(void *arg);

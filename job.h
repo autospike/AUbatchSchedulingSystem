@@ -2,6 +2,7 @@
 #define JOB_H
 
 #include <time.h>
+#include <pthread.h>
 
 #define JOB_NAME_SIZE 64
 
@@ -19,6 +20,7 @@ typedef struct job {
     time_t start_time;
     time_t finish_time;
     job_status_t status;
+    int is_benchmark;
 } job_t;
 
 typedef enum {

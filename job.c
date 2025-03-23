@@ -5,13 +5,11 @@
 #include "scheduling.h"
 
 #define MAX_JOBS 100
-//
+
 job_t *job_queue[MAX_JOBS];
 static scheduling_policy_t current_policy = POLICY_FCFS;
 int job_count = 0;
-//
 pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-//
 job_t *current_job = NULL;
 
 void add_job(job_t *job) {
@@ -79,6 +77,7 @@ void list_jobs(void) {
 
         printf("%-15s %10d %5d %15s %10s\n", job_queue[i]->name, job_queue[i]->cpu_time, job_queue[i]->priority, time_str, progress);
     }
+    printf("\n");
     pthread_mutex_unlock(&job_queue_mutex);
 }
 
@@ -120,7 +119,7 @@ void sort_jobs(void) {
     }
 }
 
-/* Comparison functions for qsort() */
+//Comparison functions for qsort()
 static int cmp_fcfs(const void *a, const void *b) {
     job_t *jobA = *(job_t **)a;
     job_t *jobB = *(job_t **)b;

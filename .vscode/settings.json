@@ -5,6 +5,7 @@
         "pthread.h": "c",
         "stdlib.h": "c",
         "string.h": "c",
-        "job.h": "c"
+        "job.h": "c",
+        "scheduling.h": "c"
     }
 }

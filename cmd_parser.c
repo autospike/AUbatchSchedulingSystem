@@ -45,7 +45,7 @@ static void process_command(char *line) {
             printf("Usage: run <job> <time> <priority>\n");
             return;
         }
-        submit_job(job_name, cpu_time, priority);
+        submit_job(job_name, cpu_time, priority, 0);
         printf("Job %s was submitted.\n", job_name);
         printf("Total number of jobs in the queue: %d\n", get_job_count());
         printf("expected waiting time: %d seconds\n", expected_waiting_time());
@@ -53,16 +53,16 @@ static void process_command(char *line) {
         scheduling_policy_t cp = get_current_policy();
         switch(cp) {
             case POLICY_FCFS:
-                    printf("FCFS.\n");
+                    printf("FCFS.\n\n");
                     break;
                 case POLICY_SJF:
-                    printf("SJF.\n");
+                    printf("SJF.\n\n");
                     break;
                 case POLICY_PRIORITY:
-                    printf("Priority.\n");
+                    printf("Priority.\n\n");
                     break;
                 default:
-                    printf("FCFS.\n");
+                    printf("FCFS.\n\n");
                     break;
         }
         return;
@@ -84,7 +84,15 @@ static void process_command(char *line) {
         return; 
     }
     else if (strcmp(command, "test") == 0) {
-        printf("test\n");
+        char benchmark_str[64];
+        char policy[16];
+        int num_of_jobs, priority_levels, min_cpu_time, max_cpu_time;
+        double arrival_rate;
+        if (sscanf(line, "test %63s %15s %d %d %lf %d %d", benchmark_str, policy, &num_of_jobs, &priority_levels, &arrival_rate, &min_cpu_time, &max_cpu_time) !=7) {
+            printf("Usage: test <job> <policy> <num_of_jobs> <priority_levels> <arrival_rate> <min_CPU_time> <max_CPU_time>\n");
+            return;
+        }
+        benchmark(benchmark_str, policy, num_of_jobs, priority_levels, arrival_rate, min_cpu_time, max_cpu_time);
         return;
     }
     else if (strcmp(command, "quit") == 0) {
@@ -93,7 +101,7 @@ static void process_command(char *line) {
         exit(0);
     }
     else {
-        printf("Unknown command\n"); 
+        printf("Error: Unknown command\n"); 
     }
 }
 

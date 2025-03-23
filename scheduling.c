@@ -9,10 +9,6 @@
 #include "scheduling.h"
 #include "job.h"
 
-//add testing
-//fix ">" print formatting
-//input checks (process name, job params)
-
 static pthread_t scheduling_thread;
 static pthread_t dispatching_thread;
 
@@ -28,9 +24,8 @@ static pthread_mutex_t policy_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int pending_policy_change = 0;
 static scheduling_policy_t pending_policy;
 
-
 //Add jobs to temp queue
-void submit_job(const char *job_name, int cpu_time, int priority) {
+void submit_job(const char *job_name, int cpu_time, int priority, int is_benchmark) {
     job_t *new_job = malloc(sizeof(job_t));
     if (!new_job) {
         perror("malloc");
@@ -40,6 +35,7 @@ void submit_job(const char *job_name, int cpu_time, int priority) {
     new_job->name[JOB_NAME_SIZE - 1] = '\0';
     new_job->cpu_time = cpu_time;
     new_job->priority = priority;
+    new_job->is_benchmark = is_benchmark;
 
     pthread_mutex_lock(&submission_mutex);
     if (submission_count >= SUBMISSION_QUEUE_SIZE) {
@@ -98,9 +94,8 @@ static void *scheduling_thread_func(void *arg) {
                     printf("FCFS.\n");
                     break;
             }
-            //use real number
             if (get_job_count() > 1) {
-                printf("All the %d waiting jobs have been rescheduled\n", get_job_count() -1);
+                printf("All %d waiting jobs have been rescheduled\n", get_job_count() -1);
             }
             pending_policy_change = 0;
         }
@@ -118,24 +113,18 @@ static void *dispatching_thread_func(void *arg) {
             sleep(1);
             continue;
         }
-        //
         pthread_mutex_lock(&job_queue_mutex);
         current_job = job;
-        //
         job->start_time = time(NULL);
         job->status = JOB_RUNNING;
-        //
         pthread_mutex_unlock(&job_queue_mutex);
-        //
 
         pid_t pid = fork();
         if (pid < 0) {
             perror("fork failed");
-            //
             pthread_mutex_lock(&job_queue_mutex);
             current_job = NULL;
             pthread_mutex_unlock(&job_queue_mutex);
-            //
             free(job);
             continue;
         }
@@ -157,15 +146,11 @@ static void *dispatching_thread_func(void *arg) {
         else {
             int status;
             waitpid(pid, &status, 0);
-            //
             pthread_mutex_lock(&job_queue_mutex);
-            //
             job->finish_time = time(NULL);
             job->status = JOB_FINISHED;
-            //
             current_job = NULL;
             pthread_mutex_unlock(&job_queue_mutex);
-            //
             record_job_evaluation(job);
             free(job);
         }
