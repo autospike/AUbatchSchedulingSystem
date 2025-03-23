@@ -1,3 +1,11 @@
+/**
+ * COMP 7500 Project 3 - AUbatch, A Thread-based Batch Scheduling System
+ * William Baker
+ * Auburn University
+ * 
+ * This file contains the declarations necessary for running benchmarks and recording metrics
+ */
+
 #ifndef EVALUATION_H
 #define EVALUATION_H
 

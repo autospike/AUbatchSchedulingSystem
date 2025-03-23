@@ -1,0 +1,221 @@
+Script started on 2025-03-23 03:45:25-05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="120" LINES="32"]
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ clear./aubatch
+[?2004lWelcome to William Baker's batch job schedular Version 1.0
+Type 'help' to find more about AUbatch commands.
+> help
+run <job> <time> <pri>    : submit a job named <job>,
+                            execution time is <time>,
+                            priority time is <pri>
+list                      : display the job status
+fcfs                      : change the scheduling policy to FCFS
+sjf                       : change the sheduling policy to SJF
+priority                  : change the sheduling policy to priority
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time>
+quit                      : exit AUbatch
+> fcfs
+> Scheduling policy is switched to FCFS.
+sjf
+> Scheduling policy is switched to SJF.
+priority
+> Scheduling policy is switched to Priority.
+list
+Total number of jobs in queue: 0
+Scheduling Policy: Priority.
+Name              CPU_Time   Pri    Arrival_time   Progress
+
+> foo
+Error: Unknown command
+> quit
+No jobs completed
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ ./aubatch
+[?2004lWelcome to William Baker's batch job schedular Version 1.0
+Type 'help' to find more about AUbatch commands.
+> run
+Usage: run <job> <time> <priority>
+> run test 3 3
+Error: Process file does not exist
+> run process 0 3
+Error: All numeric paramters must be positive
+> run process 20 3
+Job process was submitted.
+Total number of jobs in the queue: 1
+expected waiting time: 20 seconds
+Scheduling Policy: FCFS.
+
+> run process 20 5
+Job process was submitted.
+Total number of jobs in the queue: 2
+expected waiting time: 33 seconds
+Scheduling Policy: FCFS.
+
+> run process 20 7
+Job process was submitted.
+Total number of jobs in the queue: 3
+expected waiting time: 48 seconds
+Scheduling Policy: FCFS.
+
+> priority
+> Scheduling policy is switched to Priority.
+All 2 waiting jobs have been rescheduled
+list
+Total number of jobs in queue: 3
+Scheduling Policy: Priority.
+Name              CPU_Time   Pri    Arrival_time   Progress
+process                  1     3        03:47:02    Running
+process                 20     7        03:47:15    Waiting
+process                 20     5        03:47:10    Waiting
+
+> run ppp   ppp       run     list
+Total number of jobs in queue: 0
+Scheduling Policy: Priority.
+Name              CPU_Time   Pri    Arrival_time   Progress
+
+> run process 20 3
+Job process was submitted.
+Total number of jobs in the queue: 1
+expected waiting time: 20 seconds
+Scheduling Policy: Priority.
+
+> ruuuuun     proocce                   run or  process 20    15  30 1
+Job process was submitted.
+Total number of jobs in the queue: 1
+expected waiting time: 30 seconds
+Scheduling Policy: Priority.
+
+> run process 10 1
+Job process was submitted.
+Total number of jobs in the queue: 2
+expected waiting time: 30 seconds
+Scheduling Policy: Priority.
+
+> run process 5 1
+Job process was submitted.
+Total number of jobs in the queue: 3
+expected waiting time: 30 seconds
+Scheduling Policy: Priority.
+
+> sjf
+> Scheduling policy is switched to SJF.
+All 2 waiting jobs have been rescheduled
+list
+Total number of jobs in queue: 3
+Scheduling Policy: SJF.
+Name              CPU_Time   Pri    Arrival_time   Progress
+process                 12     1        03:48:59    Running
+process                  5     1        03:49:15    Waiting
+process                 10     1        03:49:10    Waiting
+
+> fcfs
+> Scheduling policy is switched to FCFS.
+All 2 waiting jobs have been rescheduled
+list
+Total number of jobs in queue: 3
+Scheduling Policy: FCFS.
+Name              CPU_Time   Pri    Arrival_time   Progress
+process                  6     1        03:48:59    Running
+process                 10     1        03:49:10    Waiting
+process                  5     1        03:49:15    Waiting
+
+> quit
+Overall Metrics
+Total number of jobs submitted: 7
+Average turnaround time: 31.43 seconds
+Average CPU time: 17.86 seconds
+Average waiting time: 13.57 seconds
+Throughput: 0.04 No./second
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ run process 20 1
+[?2004lCommand 'run' not found, did you mean:
+  command 'bun' from snap bun-js (1.2.5)
+  command 'rue' from snap darkdimension-rue (1.0.7)
+  command 'crun' from deb crun (1.12-1)
+  command 'rn' from deb trn4 (4.0-test77-16)
+  command 'runc' from deb runc (1.1.12-0ubuntu3.1)
+  command 'runq' from deb exim4-daemon-heavy (4.97-4ubuntu4.2)
+  command 'runq' from deb exim4-daemon-light (4.97-4ubuntu4.2)
+  command 'runq' from deb sendmail-bin (8.17.2-1)
+  command 'srun' from deb slurm-client (23.02.6-1ubuntu2)
+  command 'zun' from deb python3-zunclient (4.7.0-0ubuntu1)
+  command 'rup' from deb rstat-client (4.0.1-11)
+  command 'grun' from deb grun (0.9.3+git20200303-3)
+  command 'zrun' from deb moreutils (0.67-1)
+See 'snap info <snapname>' for additional versions.
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ clear
+[?2004l[H[2J[3J[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ clearrun process 20 1
+[?2004lCommand 'run' not found, did you mean:
+  command 'bun' from snap bun-js (1.2.5)
+  command 'rue' from snap darkdimension-rue (1.0.7)
+  command 'zun' from deb python3-zunclient (4.7.0-0ubuntu1)
+  command 'rup' from deb rstat-client (4.0.1-11)
+  command 'runc' from deb runc (1.1.12-0ubuntu3.1)
+  command 'runq' from deb exim4-daemon-heavy (4.97-4ubuntu4.2)
+  command 'runq' from deb exim4-daemon-light (4.97-4ubuntu4.2)
+  command 'runq' from deb sendmail-bin (8.17.2-1)
+  command 'zrun' from deb moreutils (0.67-1)
+  command 'srun' from deb slurm-client (23.02.6-1ubuntu2)
+  command 'grun' from deb grun (0.9.3+git20200303-3)
+  command 'crun' from deb crun (1.12-1)
+  command 'rn' from deb trn4 (4.0-test77-16)
+See 'snap info <snapname>' for additional versions.
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ clear
+[?2004l[H[2J[3J[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ clearrun process 20 1clear[Krun process 20 1[7P./aubatch
+[?2004lWelcome to William Baker's batch job schedular Version 1.0
+Type 'help' to find more about AUbatch commands.
+> run process 20 1
+Job process was submitted.
+Total number of jobs in the queue: 1
+expected waiting time: 20 seconds
+Scheduling Policy: FCFS.
+
+> quit
+Waiting for all jobs to finish before exiting...
+Overall Metrics
+Total number of jobs submitted: 1
+Average turnaround time: 20.00 seconds
+Average CPU time: 20.00 seconds
+Average waiting time: 0.00 seconds
+Throughput: 0.05 No./second
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ ./aubatch
+[?2004lWelcome to William Baker's batch job schedular Version 1.0
+Type 'help' to find more about AUbatch commands.
+> p test 
+Usage: test <job> <policy> <num_of_jobs> <priority_levels> <arrival_rate> <min_CPU_time> <max_CPU_time>
+> run
+Usage: run <job> <time> <priority>
+> test job     test sjf 3 3 3 3 3
+Error: Process file does not exist
+> test process wear    test 3 3 3 3 3
+Error: Unknown scheduling policy, accepted scheduling policies are: fcfs, sjf, priority
+> test process sjf 3 3 3 3 3
+==== Test Metrics ====
+Benchmark Name: process
+Policy: sjf
+Number of Jobs: 3
+Arrival Rate: 3.000000
+Priority Levels: 3
+Min CPU Time: 3
+Max CPU Time: 3
+
+Test starting...
+Scheduling policy is switched to SJF.
+Adding jobs...
+Finished adding jobs.
+
+Benchmark Metrics:
+Benchmark jobs submitted: 3
+Average turnaround time: 8.00 seconds
+Average CPU time: 3.00 seconds
+Average waiting time: 5.00 seconds
+Throughput: 0.21 No./second
+
+> quit
+Overall Metrics
+Total number of jobs submitted: 3
+Average turnaround time: 8.00 seconds
+Average CPU time: 3.00 seconds
+Average waiting time: 5.00 seconds
+Throughput: 0.21 No./second
+[?2004h]0;jwb0105@AdvOS: ~/Desktop/project3[01;32mjwb0105@AdvOS[00m:[01;34m~/Desktop/project3[00m$ exit
+[?2004lexit
+
+Script done on 2025-03-23 03:54:22-05:00 [COMMAND_EXIT_CODE="0"]

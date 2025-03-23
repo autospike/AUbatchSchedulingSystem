@@ -1,3 +1,14 @@
+/**
+ * COMP 7500 Project 3 - AUbatch, A Thread-based Batch Scheduling System
+ * William Baker
+ * Auburn University
+ * 
+ * evaluations.c contains the benchmark function,
+ * which uses user supplied parameters to create a variable amount of jobs.
+ * After these jobs are run, benchmark calls print_benchmark_metrics to print the metrics
+ * for said jobs.
+ */
+
 #define _POSIX_C_SOURCE 200112L
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +18,7 @@
 #include "scheduling.h"
 #include "job.h"
 
+//variables for session metrics
 static int total_jobs = 0;
 static double total_turnaround = 0.0;
 static double total_cpu = 0.0;
@@ -15,6 +27,7 @@ static time_t first_job_submission = 0;
 static time_t last_job_finish = 0;
 scheduling_policy_t desired_policy;
 
+//variables for benchmark metrics
 static int benchmark_jobs = 0;
 static double benchmark_turnaround = 0;
 static double benchmark_cpu = 0;
@@ -22,6 +35,7 @@ static double benchmark_waiting = 0.0;
 static time_t benchmark_first_submission = 0;
 static time_t benchmark_last_finish = 0;
 
+//creates numerous jobs based on user input and submits them to be run, then prints out the metrics
 void benchmark(const char *benchmark, const char *policy, int num_of_jobs, int priority_levels, double arrival_rate, int min_cpu_time, int max_cpu_time) {
     benchmark_jobs = 0;
     benchmark_turnaround = 0;
@@ -58,7 +72,7 @@ void benchmark(const char *benchmark, const char *policy, int num_of_jobs, int p
 
     //Ensure process exists
     if (access(benchmark, F_OK) != 0) {
-        perror("Error: Process file does not exist");
+        printf("Error: Process file does not exist\n");
         return;
     }
 
@@ -80,7 +94,6 @@ void benchmark(const char *benchmark, const char *policy, int num_of_jobs, int p
     //loop to wait for policy to be changed
     scheduling_policy_t cp = get_current_policy();
     while (get_current_policy() != desired_policy) {
-        //printf("POLICY\n");
         sleep(1);
     }
     cp = get_current_policy();
@@ -91,18 +104,16 @@ void benchmark(const char *benchmark, const char *policy, int num_of_jobs, int p
     //Submit the jobs
     printf("Adding jobs...\n");
 
+    //submit the specified number of jobs, randomly determine their characteristics based on user input
     for (int i = 0; i < num_of_jobs; i++) {
-        //printf("ADDING\n");
+        //list_jobs();
         int cpu_time = rand() % (max_cpu_time - min_cpu_time + 1) + min_cpu_time;
         int priority = rand() % priority_levels + 1;
         submit_job(benchmark, cpu_time, priority, 1);
-        //list_jobs();
-        //printf("Sleeping for %lf\n", (1.0 / arrival_rate));
         usleep((useconds_t)((1.0 / arrival_rate) * 1000000));
     }
 
     printf("Finished adding jobs.\n");
-    //list_jobs();
 
     //Wait for all jobs to finish
     while (get_job_count() > 0) {
@@ -115,6 +126,7 @@ void benchmark(const char *benchmark, const char *policy, int num_of_jobs, int p
 
 }
 
+//record job evaluations to be printed later
 void record_job_evaluation(job_t *job) {
     if (total_jobs == 0) {
         first_job_submission = job->arrival_time;
@@ -126,7 +138,7 @@ void record_job_evaluation(job_t *job) {
     total_cpu += job->cpu_time;
     total_waiting += waiting;
     last_job_finish = job->finish_time;
-
+    //keep benchmark evals seperate
     if (job->is_benchmark) {
         if (benchmark_jobs == 0) {
             benchmark_first_submission = job->arrival_time;
@@ -139,6 +151,7 @@ void record_job_evaluation(job_t *job) {
     }
 }
 
+//print session metrics (includes benchmarks)
 void print_performance_metrics() {
     if (total_jobs == 0) {
         printf("No jobs completed\n");
@@ -155,6 +168,7 @@ void print_performance_metrics() {
     printf("Throughput: %.2f No./second\n", throughput);
 }
 
+//print benchmark metrics only
 void print_benchmark_metrics() {
     double benchmark_elapsed = difftime(benchmark_last_finish, benchmark_first_submission);
     double benchmark_throughput = (benchmark_elapsed > 0) ? ((double)benchmark_jobs / benchmark_elapsed) : 0;

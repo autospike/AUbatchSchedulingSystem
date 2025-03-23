@@ -1,3 +1,12 @@
+/**
+ * COMP 7500 Project 3 - AUbatch, A Thread-based Batch Scheduling System
+ * William Baker
+ * Auburn University
+ * 
+ * This file contains the declarations necessary for creating jobs, adding them to queues,
+ * and sorting them
+ */
+
 #ifndef JOB_H
 #define JOB_H
 

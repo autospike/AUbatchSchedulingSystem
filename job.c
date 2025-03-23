@@ -1,3 +1,11 @@
+/**
+ * COMP 7500 Project 3 - AUbatch, A Thread-based Batch Scheduling System
+ * William Baker
+ * Auburn University
+ * 
+ * job.c contains the functions required to sort jobs, list jobs, and add them to queues
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -12,6 +20,7 @@ int job_count = 0;
 pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 job_t *current_job = NULL;
 
+//add job to specified queue
 void add_job(job_t *job) {
     pthread_mutex_lock(&job_queue_mutex);
 
@@ -24,11 +33,13 @@ void add_job(job_t *job) {
     job->arrival_time = time(NULL);
     job->status = JOB_WAITING;
     job_queue[job_count++] = job;
+    //sort queue after job is added
     sort_jobs();
     
     pthread_mutex_unlock(&job_queue_mutex);
 }
 
+//list waiting and running jobs
 void list_jobs(void) {
     int count = get_job_count();
     pthread_mutex_lock(&job_queue_mutex);
@@ -50,7 +61,7 @@ void list_jobs(void) {
     }
 
     printf("%-15s %10s %5s %15s %10s\n","Name", "CPU_Time", "Pri", "Arrival_time", "Progress");
-
+    //If there is a job running, display it and calulate its cpu time
     if (current_job != NULL) {
         char time_str[9];
         struct tm *tm_info = localtime(&current_job->arrival_time);
@@ -64,7 +75,7 @@ void list_jobs(void) {
 
         printf("%-15s %10d %5d %15s %10s\n", current_job->name, remaining, current_job->priority, time_str, "Running");
     }
-
+    //print all waiting jobs
     for (int i = 0; i < job_count; i++) {
         char time_str[9];
         struct tm *tm_info = localtime(&job_queue[i]->arrival_time);
@@ -81,6 +92,7 @@ void list_jobs(void) {
     pthread_mutex_unlock(&job_queue_mutex);
 }
 
+//get next job in temp queue to be added to dispatch queue
 job_t* get_next_job(void) {
     pthread_mutex_lock(&job_queue_mutex);
     if (job_count == 0) {
@@ -96,13 +108,16 @@ job_t* get_next_job(void) {
     return job;
 }
 
+//change policy and sort dispatch queue accordingly
 void change_policy(scheduling_policy_t new_policy) {
     pthread_mutex_lock(&job_queue_mutex);
     current_policy = new_policy;
+    //call function to sort dispatch queue
     sort_jobs();
     pthread_mutex_unlock(&job_queue_mutex);
 }
 
+//sorts jobs based on scheduling policy
 void sort_jobs(void) {
     if (job_count <= 1)
         return;
@@ -119,7 +134,7 @@ void sort_jobs(void) {
     }
 }
 
-//Comparison functions for qsort()
+//Comparison functions for sorting
 static int cmp_fcfs(const void *a, const void *b) {
     job_t *jobA = *(job_t **)a;
     job_t *jobB = *(job_t **)b;
@@ -140,6 +155,7 @@ static int cmp_priority(const void *a, const void *b) {
     return jobB->priority - jobA->priority;
 }
 
+//get job count for printing
 int get_job_count(void) {
     int count;
     pthread_mutex_lock(&job_queue_mutex);
@@ -157,6 +173,7 @@ int get_job_count(void) {
     return count;
 }
 
+//get waiting time for printing
 int expected_waiting_time(void) {
     int total = 0;
     time_t now = time(NULL);
@@ -187,6 +204,7 @@ int expected_waiting_time(void) {
     return total;
 }
 
+//get current policy to determine if an update needs to be made
 scheduling_policy_t get_current_policy(void) {
     scheduling_policy_t cp;
     pthread_mutex_lock(&job_queue_mutex);
